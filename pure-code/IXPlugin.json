@@ -1,0 +1,15 @@
+{
+  "id": "pure-code",
+  "name": "PureCode",
+  "version": "alpha.0.1.0",
+  "main": "entrance.py",
+  "description": {
+    "zh": "去除代码注释、编排文件顺序并导出 Word 文档，用于软件著作权申请材料。",
+    "en": "Strip code comments, arrange file order and export a Word document for software copyright applications."
+  },
+  "author": "William_Kuang",
+  "keywords": ["软著", "代码导出", "comment-stripper", "docx"],
+  "dependencies": {
+    "python-docx": ">=1.1.0"
+  }
+}
