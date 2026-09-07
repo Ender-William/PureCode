@@ -46,14 +46,33 @@
     <text key="unmatched_item">无语言规则：{file}</text>
     <text key="order_applied">已应用自定义文件顺序（{count} 个文件）</text>
   </group>
-  <group name="common">
-    <text key="developing">功能开发中，敬请期待</text>
-  </group>
   <group name="sort">
     <text key="title">调整文件顺序</text>
     <text key="hint">拖拽列表项或使用按钮，调整文件在文档中出现的先后顺序：</text>
     <text key="move_up">上移</text>
     <text key="move_down">下移</text>
     <text key="reset_default">恢复默认排序</text>
+  </group>
+  <group name="language">
+    <text key="title">语言设置</text>
+    <text key="add">添加语言</text>
+    <text key="hint">多个记号以空格分隔；块注释按「起始符 结束符」成对填写，如 /* */</text>
+    <text key="name">语言名称</text>
+    <text key="extensions">文件扩展名</text>
+    <text key="line_comments">单行注释符</text>
+    <text key="block_comments">块注释符</text>
+    <text key="string_delimiters">字符串界定符</text>
+    <text key="nested_block">支持嵌套块注释</text>
+    <text key="save">保存</text>
+    <text key="delete">删除</text>
+    <text key="restore_default">恢复内置默认</text>
+    <text key="tag_builtin">（内置）</text>
+    <text key="tag_overridden">（内置·已修改）</text>
+    <text key="confirm_delete_title">删除语言</text>
+    <text key="confirm_delete">确定删除自定义语言「{name}」吗？此操作不可撤销。</text>
+    <text key="save_failed">保存失败</text>
+    <text key="pair_error">块注释符须按「起始符 结束符」成对填写</text>
+    <text key="saved">语言规则已保存</text>
+    <text key="restored">已恢复内置默认</text>
   </group>
 </texts>

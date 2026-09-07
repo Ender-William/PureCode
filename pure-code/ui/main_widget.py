@@ -32,6 +32,7 @@ from utils.thread_utils import run_in_ui_thread
 from ..service import PureCodeService
 from .file_tree_panel import FileTreePanel
 from .file_type_dialog import FileTypeDialog
+from .language_dialog import LanguageDialog
 from .settings_panel import SettingsPanel
 from .sort_dialog import SortDialog
 
@@ -178,8 +179,13 @@ class PureCodeMainWidget(QWidget):
             self._tr("task", "order_applied", count=len(self._custom_order)))
 
     def _on_language_settings(self) -> None:
-        """语言设置（语言设置对话框在后续迭代接入）"""
-        Message.info(self, self._tr("common", "developing"))
+        """语言设置"""
+        self._open_language_dialog()
+
+    def _open_language_dialog(self) -> None:
+        """打开语言设置对话框（规则读写经服务持有的 RuleStore）"""
+        dialog = LanguageDialog(self._tr, self._service.get_rule_store(), self)
+        dialog.exec()
 
     def _on_start_export(self) -> None:
         """开始导出"""

@@ -46,14 +46,33 @@
     <text key="unmatched_item">No language rule: {file}</text>
     <text key="order_applied">Custom file order applied ({count} files)</text>
   </group>
-  <group name="common">
-    <text key="developing">Feature under development</text>
-  </group>
   <group name="sort">
     <text key="title">Adjust File Order</text>
     <text key="hint">Drag list items or use the buttons to adjust the order in which files appear in the document:</text>
     <text key="move_up">Move Up</text>
     <text key="move_down">Move Down</text>
     <text key="reset_default">Reset to Default Order</text>
+  </group>
+  <group name="language">
+    <text key="title">Language Settings</text>
+    <text key="add">Add Language</text>
+    <text key="hint">Separate multiple tokens with spaces; write block comments as start/end pairs, e.g. /* */</text>
+    <text key="name">Language Name</text>
+    <text key="extensions">File Extensions</text>
+    <text key="line_comments">Line Comment Tokens</text>
+    <text key="block_comments">Block Comment Tokens</text>
+    <text key="string_delimiters">String Delimiters</text>
+    <text key="nested_block">Nested Block Comments</text>
+    <text key="save">Save</text>
+    <text key="delete">Delete</text>
+    <text key="restore_default">Restore Built-in Default</text>
+    <text key="tag_builtin"> (built-in)</text>
+    <text key="tag_overridden"> (built-in, modified)</text>
+    <text key="confirm_delete_title">Delete Language</text>
+    <text key="confirm_delete">Delete the custom language "{name}"? This cannot be undone.</text>
+    <text key="save_failed">Save Failed</text>
+    <text key="pair_error">Block comment tokens must be written as start/end pairs</text>
+    <text key="saved">Language rule saved</text>
+    <text key="restored">Restored to built-in default</text>
   </group>
 </texts>
