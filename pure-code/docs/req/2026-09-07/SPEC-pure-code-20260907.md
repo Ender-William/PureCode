@@ -238,7 +238,7 @@ stateDiagram-v2
 | 文件 | 内容 |
 |------|------|
 | `custom_plugin/IXRepo.json` | 新建：`plugins` 数组仅含 `{ "path": "pure-code", "id": "pure-code", "name": "PureCode" }` |
-| `custom_plugin/pure-code/IXPlugin.json` | 新建：`id=pure-code`、`version=alpha.0.1.0`、`main=entrance.py`、`dependencies={"python-docx": ">=1.1.0"}`、name/description 多语言字典 |
+| `custom_plugin/pure-code/IXPlugin.json` | 新建：`id=pure-code`、`version=release.1.0.0`、`main=entrance.py`、`dependencies={"python-docx": ">=1.1.0"}`、name/description 多语言字典 |
 | `custom_plugin/pure-code/config/default_rules.json` | 内置规则：Python / C / C++ / C# / Java / JavaScript / TypeScript / Go / Rust |
 | DataProvider 键（PRIVATE） | `language_rule_overrides`（用户规则覆盖列表） |
 

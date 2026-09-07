@@ -1,7 +1,7 @@
 {
   "id": "pure-code",
   "name": "PureCode",
-  "version": "alpha.0.1.0",
+  "version": "release.1.0.0",
   "main": "entrance.py",
   "description": {
     "zh": "去除代码注释、编排文件顺序并导出 Word 文档，用于软件著作权申请材料。",

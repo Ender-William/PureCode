@@ -20,8 +20,8 @@ class PureCodePluginInfo(IPluginInfo):
 
     @property
     def version(self) -> PluginVersion:
-        """插件版本号（开发期自测使用 alpha 类型）"""
-        return PluginVersion.from_string("alpha.0.1.0")
+        """插件版本号"""
+        return PluginVersion.from_string("release.1.0.0")
 
     @property
     def developer(self) -> str:

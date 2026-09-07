@@ -81,14 +81,14 @@ PureCode 提供一站式的「代码净化与编排导出」能力：
 - **单插件仓库**：`custom_plugin/` 仓库根放置 `IXRepo.json`（`plugins` 数组仅列出一个插件子目录）；
 - 插件目录名 / 插件 ID：`pure-code`（kebab-case）；
 - 插件显示名称：`PureCode`；
-- 初始版本：`alpha.0.1.0`（开发期自测）。
+- 初始版本：`release.1.0.0`。
 
 ## 6. 描述文件清单
 
 | 文件 | 位置 | 说明 |
 |------|------|------|
 | `IXRepo.json` | `custom_plugin/`（仓库根） | 插件仓库索引，`plugins` 仅含 `pure-code` 一项 |
-| `IXPlugin.json` | `custom_plugin/pure-code/` | 插件描述文件：`id=pure-code`、`version=alpha.0.1.0`、`main=entrance.py`、`dependencies={"python-docx": ">=1.1.0"}`、name/description 采用多语言字典形式 |
+| `IXPlugin.json` | `custom_plugin/pure-code/` | 插件描述文件：`id=pure-code`、`version=release.1.0.0`、`main=entrance.py`、`dependencies={"python-docx": ">=1.1.0"}`、name/description 采用多语言字典形式 |
 
 ## 7. 已知边界（v1 不覆盖）
 
