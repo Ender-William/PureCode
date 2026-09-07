@@ -1,6 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <texts language="en">
-  <group name="main">
-    <text key="placeholder">PureCode Main UI (Skeleton)</text>
+  <group name="toolbar">
+    <text key="select_dir">Select Project Directory</text>
+    <text key="sort_files">Adjust File Order</text>
+    <text key="language_settings">Language Settings</text>
+    <text key="start_export">Export</text>
+  </group>
+  <group name="file_type">
+    <text key="title">Select File Types</text>
+    <text key="hint">The following file types were detected. Check the types to include in the export:</text>
+    <text key="select_all">Select All</text>
+    <text key="clear_all">Clear</text>
+    <text key="no_extension">(no extension)</text>
+    <text key="item">{ext} ({count})</text>
+    <text key="empty">No files were found in the selected project.</text>
+  </group>
+  <group name="tree">
+    <text key="stats">{checked} / {total} files checked</text>
+    <text key="empty_hint">Select a project directory from the toolbar</text>
+  </group>
+  <group name="settings">
+    <text key="title">Settings</text>
+    <text key="keep_unmatched">Keep files without a matching language rule as-is (skip if off)</text>
+    <text key="log_title">Processing Log</text>
+  </group>
+  <group name="export">
+    <text key="save_title">Export Code Document</text>
+    <text key="file_filter">Word Document (*.docx)</text>
+    <text key="no_selection">Check the files to export in the file tree first</text>
+    <text key="done_title">Export Completed</text>
+    <text key="done_msg">Successfully exported {count} files. Saved to: {path}</text>
+    <text key="fail_title">Export Failed</text>
+    <text key="fail_msg">An error occurred during export: {error}. Check whether the output path is writable, or see the log for details.</text>
+  </group>
+  <group name="task">
+    <text key="scanning">Scanning project directory...</text>
+    <text key="scan_done">Scan completed: {total} files found, {loaded} files loaded</text>
+    <text key="scan_failed_title">Scan Failed</text>
+    <text key="scan_failed">Directory scan failed: {error}</text>
+    <text key="exporting">Exporting code document...</text>
+    <text key="progress_item">({done}/{total}) Processed: {file}</text>
+    <text key="export_done">Export completed: {count} files -&gt; {path}</text>
+    <text key="export_failed">Export failed: {error}</text>
+    <text key="skipped_item">Skipped (read or decode failed): {file}</text>
+    <text key="unmatched_item">No language rule: {file}</text>
+  </group>
+  <group name="common">
+    <text key="developing">Feature under development</text>
   </group>
 </texts>

@@ -1,6 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <texts language="zh">
-  <group name="main">
-    <text key="placeholder">PureCode 主界面（骨架）</text>
+  <group name="toolbar">
+    <text key="select_dir">选择项目目录</text>
+    <text key="sort_files">调整文件顺序</text>
+    <text key="language_settings">语言设置</text>
+    <text key="start_export">开始导出</text>
+  </group>
+  <group name="file_type">
+    <text key="title">选择文件类型</text>
+    <text key="hint">检测到以下文件类型，请勾选需要参与导出的类型：</text>
+    <text key="select_all">全选</text>
+    <text key="clear_all">清空</text>
+    <text key="no_extension">（无扩展名）</text>
+    <text key="item">{ext}（{count}）</text>
+    <text key="empty">所选项目中未找到任何文件。</text>
+  </group>
+  <group name="tree">
+    <text key="stats">已勾选 {checked} / {total} 个文件</text>
+    <text key="empty_hint">请通过工具栏选择项目目录</text>
+  </group>
+  <group name="settings">
+    <text key="title">设置</text>
+    <text key="keep_unmatched">无匹配语言规则的文件原样保留（关闭则导出时跳过）</text>
+    <text key="log_title">处理日志</text>
+  </group>
+  <group name="export">
+    <text key="save_title">导出代码文档</text>
+    <text key="file_filter">Word 文档 (*.docx)</text>
+    <text key="no_selection">请先在文件树中勾选要导出的文件</text>
+    <text key="done_title">导出完成</text>
+    <text key="done_msg">成功导出 {count} 个文件。保存至：{path}</text>
+    <text key="fail_title">导出失败</text>
+    <text key="fail_msg">导出过程中发生错误：{error}。请检查输出路径是否可写，或查看日志了解详情。</text>
+  </group>
+  <group name="task">
+    <text key="scanning">正在扫描项目目录…</text>
+    <text key="scan_done">扫描完成：共发现 {total} 个文件，加载 {loaded} 个文件</text>
+    <text key="scan_failed_title">扫描失败</text>
+    <text key="scan_failed">目录扫描失败：{error}</text>
+    <text key="exporting">正在导出代码文档…</text>
+    <text key="progress_item">（{done}/{total}）已处理：{file}</text>
+    <text key="export_done">导出完成：{count} 个文件 → {path}</text>
+    <text key="export_failed">导出失败：{error}</text>
+    <text key="skipped_item">已跳过（读取或解码失败）：{file}</text>
+    <text key="unmatched_item">无语言规则：{file}</text>
+  </group>
+  <group name="common">
+    <text key="developing">功能开发中，敬请期待</text>
   </group>
 </texts>

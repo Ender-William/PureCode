@@ -26,6 +26,7 @@ from .models import (
 DEFAULT_RULES_RELATIVE_PATH = Path("config") / "default_rules.json"
 USER_OVERRIDES_KEY = "language_rule_overrides"
 MODULE_NAME = "pure-code.rule_store"
+PLUGIN_TYPE_ID = "pure-code"
 
 
 class RuleStore:
@@ -57,6 +58,8 @@ class RuleStore:
         self._data_provider = data_provider
         self._plugin_id = plugin_id
         self._logger = logger
+        # 框架不在插件加载期代办 DataProvider 注册，首次读写前须自行确保
+        self._registered = self._ensure_registered()
         self._builtin_rules: list[dict] = self._load_builtin_rules()
         self._user_overrides: list[dict] = self._load_user_overrides()
 
@@ -160,6 +163,35 @@ class RuleStore:
         self._persist_overrides()
         return True
 
+    def _ensure_registered(self) -> bool:
+        """
+        确保插件已在 DataProvider 注册
+
+        框架加载插件时不代办 DataProvider 注册（读写前插件须自行确保）；
+        重复注册会抛 DataProviderError，需容忍（框架 API 注册实例与插件
+        UI 实例可能先后初始化同一插件 ID）。
+
+        Returns:
+            是否可用 DataProvider 持久化
+        """
+        if self._data_provider is None or not self._plugin_id:
+            return False
+        try:
+            if self._data_provider.get_plugin_info(self._plugin_id) is None:
+                self._data_provider.register_plugin(self._plugin_id, PLUGIN_TYPE_ID)
+        except DataProviderError as exc:
+            if self._plugin_info_safely() is None:
+                self._log_error(f"插件数据注册失败: {exc}")
+                return False
+        return True
+
+    def _plugin_info_safely(self) -> "dict | None":
+        """容错读取插件注册信息（异常时返回 None）"""
+        try:
+            return self._data_provider.get_plugin_info(self._plugin_id)
+        except DataProviderError:
+            return None
+
     def _load_builtin_rules(self) -> list[dict]:
         """加载并规范化内置规则文件，文件缺失/损坏时降级为空并记日志"""
         path = self._plugin_dir / DEFAULT_RULES_RELATIVE_PATH
@@ -173,7 +205,7 @@ class RuleStore:
 
     def _load_user_overrides(self) -> list[dict]:
         """从 DataProvider 读取用户覆盖规则，不可用时降级为空并记日志"""
-        if self._data_provider is None or not self._plugin_id:
+        if not self._registered:
             return []
         try:
             raw = self._data_provider.get_plugin_data(
@@ -198,7 +230,9 @@ class RuleStore:
 
     def _persist_overrides(self) -> None:
         """持久化用户覆盖规则，DataProvider 不可用时仅保留内存态并记日志"""
-        if self._data_provider is None or not self._plugin_id:
+        if not self._registered:
+            self._registered = self._ensure_registered()
+        if not self._registered:
             self._log_warning("DataProvider 不可用，用户语言规则仅保留在内存")
             return
         try:
