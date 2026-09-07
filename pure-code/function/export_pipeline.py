@@ -89,8 +89,12 @@ class ExportPipeline:
                 FileBlock(block.relative_path, _drop_blank_lines(block.code))
                 for block in blocks
             ]
-        self._exporter.write(output_path, Path(root).name, blocks)
+        # 处理阶段收尾（进度条满），随后进入写文档阶段（current 为空串标识）
         self._report_progress(progress, "", len(ordered_files), len(ordered_files))
+        self._exporter.write(
+            output_path, Path(root).name, blocks,
+            progress=self._write_progress_hook(progress))
+        self._report_progress(progress, "", len(blocks), len(blocks))
         return {
             "output_path": str(output_path),
             "file_count": len(blocks),
@@ -167,6 +171,18 @@ class ExportPipeline:
                 continue
         self._log_warning(f"文件编码无法识别已跳过: {relative}")
         return None
+
+    def _write_progress_hook(
+        self, progress: "ProgressCallback | None"
+    ) -> "Callable[[int, int], None] | None":
+        """把写入阶段的 (块索引, 总数) 回调适配为统一进度回调（current 空串标识写文档阶段）"""
+        if progress is None:
+            return None
+
+        def _hook(index: int, total: int) -> None:
+            self._report_progress(progress, "", index, total)
+
+        return _hook
 
     def _report_progress(
         self, progress: "ProgressCallback | None", current: str, done: int, total: int
