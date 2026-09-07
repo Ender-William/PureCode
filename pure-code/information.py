@@ -75,6 +75,12 @@ class PureCodePluginInfo(IPluginInfo):
                         "required": False,
                         "default": None,
                     },
+                    "remove_blank_lines": {
+                        "type": "boolean",
+                        "description": "是否移除代码中的全部空行，缺省为保留原始空行",
+                        "required": False,
+                        "default": False,
+                    },
                 },
                 "returns": {
                     "type": "object",

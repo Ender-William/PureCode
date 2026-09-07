@@ -45,6 +45,7 @@ class PureCodeService:
         project_dir: str,
         output_path: str,
         extensions: "list[str] | None" = None,
+        remove_blank_lines: bool = False,
     ) -> dict:
         """
         扫描项目目录并按默认顺序导出代码 Word 文档（去注释）
@@ -53,6 +54,7 @@ class PureCodeService:
             project_dir: 项目根目录绝对路径
             output_path: 输出 docx 文件路径
             extensions: 限定导出的扩展名列表（None 表示全部类型）
+            remove_blank_lines: 是否移除代码中的全部空行（默认保留原始空行）
 
         Returns:
             结果 dict：output_path / file_count / skipped / unmatched
@@ -65,7 +67,8 @@ class PureCodeService:
         files = scan.files
         if extensions is not None:
             files = self._scanner.filter_by_extensions(files, set(extensions))
-        return self._pipeline.run(project_dir, files, output_path)
+        return self._pipeline.run(
+            project_dir, files, output_path, remove_blank_lines=remove_blank_lines)
 
     def list_supported_languages(self) -> list[dict]:
         """
@@ -93,9 +96,12 @@ class PureCodeService:
         output_path: "str | Path",
         keep_unmatched: bool = True,
         progress: "ProgressCallback | None" = None,
+        remove_blank_lines: bool = False,
     ) -> dict:
         """按指定文件顺序执行导出流水线（UI 后台任务入口）"""
-        return self._pipeline.run(root, ordered_files, output_path, keep_unmatched, progress)
+        return self._pipeline.run(
+            root, ordered_files, output_path, keep_unmatched, progress,
+            remove_blank_lines)
 
     def get_rule_store(self) -> RuleStore:
         """获取语言规则存储（语言设置界面读写规则的入口）"""

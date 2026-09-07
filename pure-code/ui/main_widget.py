@@ -273,7 +273,8 @@ class PureCodeMainWidget(QWidget):
             TASK_NAME_EXPORT, self._service.run_export, self._on_export_finished,
             args=(self._project_root, files, output_path,
                   self._settings_panel.is_keep_unmatched(),
-                  self._on_export_progress))
+                  self._on_export_progress,
+                  self._settings_panel.is_remove_blank_lines()))
 
     def _on_export_progress(self, current: str, done: int, total: int) -> None:
         """导出进度回调（工作线程）：逐文件日志封送至 UI 线程"""

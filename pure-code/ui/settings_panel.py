@@ -30,6 +30,8 @@ class SettingsPanel(QWidget):
         self._title_label = QLabel(self)
         self._keep_label = QLabel(self)
         self._keep_switch = Switch(checked=True, parent=self)
+        self._blank_label = QLabel(self)
+        self._blank_switch = Switch(checked=True, parent=self)
         self._log_title = QLabel(self)
         self._log_view = QPlainTextEdit(self)
         self._build_ui()
@@ -38,6 +40,10 @@ class SettingsPanel(QWidget):
     def is_keep_unmatched(self) -> bool:
         """无匹配语言规则的文件是否原样保留（False 则导出时跳过）"""
         return self._keep_switch.isChecked()
+
+    def is_remove_blank_lines(self) -> bool:
+        """导出时是否移除代码中的全部空行"""
+        return self._blank_switch.isChecked()
 
     def append_log(self, text: str) -> None:
         """追加一行处理日志"""
@@ -51,6 +57,7 @@ class SettingsPanel(QWidget):
         """语言切换：重取全部文案"""
         self._title_label.setText(self._tr("settings", "title"))
         self._keep_label.setText(self._tr("settings", "keep_unmatched"))
+        self._blank_label.setText(self._tr("settings", "remove_blank_lines"))
         self._log_title.setText(self._tr("settings", "log_title"))
 
     def _build_ui(self) -> None:
@@ -62,8 +69,12 @@ class SettingsPanel(QWidget):
         keep_row = QHBoxLayout()
         keep_row.addWidget(self._keep_label, 1)
         keep_row.addWidget(self._keep_switch)
+        blank_row = QHBoxLayout()
+        blank_row.addWidget(self._blank_label, 1)
+        blank_row.addWidget(self._blank_switch)
         self._log_view.setReadOnly(True)
         layout.addWidget(self._title_label)
         layout.addLayout(keep_row)
+        layout.addLayout(blank_row)
         layout.addWidget(self._log_title)
         layout.addWidget(self._log_view, 1)
