@@ -54,8 +54,42 @@ class PureCodePluginInfo(IPluginInfo):
 
     @property
     def service_api(self) -> Dict[str, Any]:
-        """Service API 文档（导出链路实现后与 PureCodeService 同步填充）"""
-        return {}
+        """Service API 文档（与 service.py 的 PureCodeService 保持同步）"""
+        return {
+            "export_code_document": {
+                "description": "扫描项目目录并导出代码 Word 文档（去除注释，按默认顺序）",
+                "parameters": {
+                    "project_dir": {
+                        "type": "string",
+                        "description": "项目根目录绝对路径",
+                        "required": True,
+                    },
+                    "output_path": {
+                        "type": "string",
+                        "description": "输出 docx 文件路径",
+                        "required": True,
+                    },
+                    "extensions": {
+                        "type": "array",
+                        "description": "限定导出的扩展名列表（如 [\".py\"]），缺省为全部类型",
+                        "required": False,
+                        "default": None,
+                    },
+                },
+                "returns": {
+                    "type": "object",
+                    "description": "{output_path, file_count, skipped, unmatched}",
+                },
+            },
+            "list_supported_languages": {
+                "description": "列出当前生效的语言注释规则（内置 ∪ 用户覆盖）",
+                "parameters": {},
+                "returns": {
+                    "type": "array",
+                    "description": "语言规则列表（含 name/extensions/注释符/builtin 标记）",
+                },
+            },
+        }
 
     @property
     def skill_icon(self) -> PluginIcon:
