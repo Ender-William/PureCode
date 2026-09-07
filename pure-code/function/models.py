@@ -14,6 +14,7 @@ FIELD_EXTENSIONS = "extensions"
 FIELD_LINE_COMMENTS = "line_comments"
 FIELD_BLOCK_COMMENTS = "block_comments"
 FIELD_STRING_DELIMITERS = "string_delimiters"
+FIELD_DOCSTRINGS = "docstrings"
 FIELD_ESCAPE_CHAR = "escape_char"
 FIELD_NESTED_BLOCK = "nested_block"
 FIELD_BUILTIN = "builtin"
@@ -61,6 +62,7 @@ def normalize_rule(rule: dict) -> dict:
         FIELD_LINE_COMMENTS: list(rule.get(FIELD_LINE_COMMENTS) or []),
         FIELD_BLOCK_COMMENTS: [list(pair) for pair in rule.get(FIELD_BLOCK_COMMENTS) or []],
         FIELD_STRING_DELIMITERS: list(rule.get(FIELD_STRING_DELIMITERS) or []),
+        FIELD_DOCSTRINGS: list(rule.get(FIELD_DOCSTRINGS) or []),
         FIELD_ESCAPE_CHAR: rule.get(FIELD_ESCAPE_CHAR) or DEFAULT_ESCAPE_CHAR,
         FIELD_NESTED_BLOCK: bool(rule.get(FIELD_NESTED_BLOCK, False)),
     }
@@ -120,13 +122,21 @@ def _is_valid_block_pair(pair: Any) -> bool:
 
 
 def _validate_string_fields(rule: dict) -> list[str]:
-    """校验字符串界定符与转义符字段"""
-    delimiters = rule.get(FIELD_STRING_DELIMITERS) or []
-    if not isinstance(delimiters, list):
-        return ["字符串界定符必须为列表"]
-    if not all(_is_non_empty_str(delimiter) for delimiter in delimiters):
-        return ["字符串界定符必须为非空字符串"]
+    """校验字符串界定符、文档字符串界定符与转义符字段"""
+    errors = _validate_token_list(rule.get(FIELD_STRING_DELIMITERS), "字符串界定符")
+    errors.extend(_validate_token_list(rule.get(FIELD_DOCSTRINGS), "文档字符串界定符"))
     escape = rule.get(FIELD_ESCAPE_CHAR, DEFAULT_ESCAPE_CHAR)
     if not _is_non_empty_str(escape):
-        return ["转义符必须为非空字符串"]
+        errors.append("转义符必须为非空字符串")
+    return errors
+
+
+def _validate_token_list(value: Any, label: str) -> list[str]:
+    """校验可选记号列表字段：缺省合法；存在时须为非空字符串列表"""
+    if value is None:
+        return []
+    if not isinstance(value, list):
+        return [f"{label}必须为列表"]
+    if not all(_is_non_empty_str(item) for item in value):
+        return [f"{label}必须为非空字符串"]
     return []
