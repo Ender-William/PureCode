@@ -88,3 +88,31 @@ class TestExportPipeline:
         with pytest.raises(OSError):
             pipeline.run(
                 project_root, ["main.py"], tmp_path / "不存在的目录" / "out.docx")
+
+
+class TestRemoveBlankLines:
+    """移除空行开关与换行符归一"""
+
+    def test_remove_blank_lines_enabled(self, pipeline, project_root, tmp_path):
+        output = tmp_path / "out.docx"
+        pipeline.run(project_root, ["main.py", "data.zzz"], output,
+                     remove_blank_lines=True)
+        texts = _read_doc_texts(output)
+        assert all(line.strip() for line in texts)
+        assert texts[texts.index("main.py") + 1: texts.index("main.py") + 3] == [
+            "x = 1", 's = "# 保留"']
+
+    def test_remove_blank_lines_disabled_keeps_blank(
+            self, pipeline, project_root, tmp_path):
+        output = tmp_path / "out.docx"
+        pipeline.run(project_root, ["main.py"], output)
+        assert "" in _read_doc_texts(output)
+
+    def test_crlf_unified_for_unmatched_files(self, pipeline, tmp_path):
+        root = tmp_path / "crlf_proj"
+        root.mkdir()
+        (root / "raw.zzz").write_bytes(b"line1\r\n\r\nline2\r\n")
+        output = tmp_path / "out.docx"
+        pipeline.run(root, ["raw.zzz"], output)
+        texts = _read_doc_texts(output)
+        assert texts[2:] == ["line1", "", "line2", ""]

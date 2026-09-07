@@ -87,3 +87,54 @@ class TestBlockComments:
 
     def test_unterminated_string_kept(self):
         assert CommentStripper().strip('s = "abc', _c_rule()) == 's = "abc'
+
+
+def _docstring_rule(nested: bool = False) -> dict:
+    """含 docstrings 字段的规则：行首三引号按块注释剥离"""
+    return normalize_rule({
+        "name": "PyDoc",
+        "extensions": ["py"],
+        "line_comments": ["#"],
+        "block_comments": [["/*", "*/"]],
+        "string_delimiters": ['"""', '"'],
+        "docstrings": ['"""'],
+        "nested_block": nested,
+    })
+
+
+class TestDocstrings:
+    """文档字符串行首启发式剥离"""
+
+    def test_module_docstring_stripped(self):
+        source = '"""模块文档\n多行 # 内容\n"""\nx = 1\n'
+        assert CommentStripper().strip(source, _docstring_rule()) == "x = 1"
+
+    def test_single_line_docstring_stripped(self):
+        source = '"""单行文档"""\nx = 1\n'
+        assert CommentStripper().strip(source, _docstring_rule()) == "x = 1"
+
+    def test_indented_function_docstring_stripped(self):
+        source = 'def f():\n    """函数文档"""\n    return 1\n'
+        expected = "def f():\n    return 1"
+        assert CommentStripper().strip(source, _docstring_rule()) == expected
+
+    def test_assigned_multiline_string_kept(self):
+        source = 'x = """\n数据 # 内容\n"""\n'
+        expected = 'x = """\n数据 # 内容\n"""'
+        assert CommentStripper().strip(source, _docstring_rule()) == expected
+
+    def test_return_position_string_kept(self):
+        source = 'def f():\n    return """值"""\n'
+        expected = 'def f():\n    return """值"""'
+        assert CommentStripper().strip(source, _docstring_rule()) == expected
+
+    def test_nested_rule_docstring_still_closes(self):
+        # 起止符相同且 nested_block 开启时，起始符不得被误计为嵌套
+        source = '"""文档 /* 嵌套 */ 内容\n"""\na /* x /* y */ z */ b\n'
+        result = CommentStripper().strip(source, _docstring_rule(nested=True))
+        assert result == "a  b"
+
+    def test_rule_without_docstrings_unchanged(self):
+        source = '"""文档"""\nx = 1\n'
+        expected = '"""文档"""\nx = 1'
+        assert CommentStripper().strip(source, _python_rule()) == expected

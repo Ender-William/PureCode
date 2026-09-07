@@ -112,3 +112,30 @@ class TestNormalizeRule:
         rule["extensions"] = ["PY"]
         normalize_rule(rule)
         assert rule["extensions"] == ["PY"]
+
+
+class TestDocstringsField:
+    """文档字符串界定符字段的校验与规范化"""
+
+    def test_valid_docstrings_accepted(self):
+        rule = _valid_rule()
+        rule["docstrings"] = ['"""']
+        assert validate_rule(rule) == []
+
+    def test_non_list_docstrings_rejected(self):
+        rule = _valid_rule()
+        rule["docstrings"] = '"""'
+        assert "文档字符串界定符必须为列表" in validate_rule(rule)
+
+    def test_empty_docstring_token_rejected(self):
+        rule = _valid_rule()
+        rule["docstrings"] = [""]
+        assert "文档字符串界定符必须为非空字符串" in validate_rule(rule)
+
+    def test_normalize_defaults_empty(self):
+        assert normalize_rule(_valid_rule())["docstrings"] == []
+
+    def test_normalize_keeps_docstrings(self):
+        rule = _valid_rule()
+        rule["docstrings"] = ['"""', "'''"]
+        assert normalize_rule(rule)["docstrings"] == ['"""', "'''"]
