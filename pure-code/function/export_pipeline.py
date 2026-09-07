@@ -1,8 +1,9 @@
 """
 PureCode 导出流水线
 
-编排「读文件 → 编码回退解码 → 按规则去注释 → 组装文件块 → 写 docx」
-全过程。纯业务层，不依赖 PySide6；进度经回调上报，线程封送由调用方负责。
+编排「读文件 → 编码回退解码 → 按规则去注释 →（可选）移除空行 →
+组装文件块 → 写 docx」全过程。纯业务层，不依赖 PySide6；
+进度经回调上报，线程封送由调用方负责。
 """
 
 from pathlib import Path
@@ -20,6 +21,11 @@ MODULE_NAME = "pure-code.export_pipeline"
 ENCODING_FALLBACK_CHAIN = ("utf-8", "gb18030")
 # 进度回调签名: (当前文件相对路径, 已完成数, 总数)
 ProgressCallback = Callable[[str, int, int], None]
+
+
+def _drop_blank_lines(code: str) -> str:
+    """移除文本中的全部空行（仅含空白字符的行视为空行）"""
+    return "\n".join(line for line in code.split("\n") if line.strip())
 
 
 class ExportPipeline:
@@ -56,6 +62,7 @@ class ExportPipeline:
         output_path: "str | Path",
         keep_unmatched: bool = True,
         progress: "ProgressCallback | None" = None,
+        remove_blank_lines: bool = False,
     ) -> dict:
         """
         执行导出流水线
@@ -66,6 +73,7 @@ class ExportPipeline:
             output_path: 输出 docx 路径
             keep_unmatched: 无匹配语言规则的文件是否原样保留（False 则跳过）
             progress: 进度回调（在工作线程中被调用，UI 更新须自行封送）
+            remove_blank_lines: 是否移除代码中的全部空行（默认保留原始空行）
 
         Returns:
             结果 dict：output_path / file_count / skipped（失败列表）/
@@ -76,6 +84,11 @@ class ExportPipeline:
         """
         blocks, skipped, unmatched = self._collect_blocks(
             Path(root), ordered_files, keep_unmatched, progress)
+        if remove_blank_lines:
+            blocks = [
+                FileBlock(block.relative_path, _drop_blank_lines(block.code))
+                for block in blocks
+            ]
         self._exporter.write(output_path, Path(root).name, blocks)
         self._report_progress(progress, "", len(ordered_files), len(ordered_files))
         return {
@@ -143,10 +156,13 @@ class ExportPipeline:
         return FileBlock(relative, source) if keep_unmatched else None
 
     def _decode(self, raw: bytes, relative: str) -> "str | None":
-        """按回退链解码文件字节，全部失败返回 None 并记 WARNING"""
+        """按回退链解码文件字节并统一换行符为 \n，全部失败返回 None 并记 WARNING"""
         for encoding in ENCODING_FALLBACK_CHAIN:
             try:
-                return raw.decode(encoding)
+                # Windows 源文件多为 CRLF：解码后统一归一为 \n，
+                # 否则无规则文件原样保留路径残留的 \r 会被 python-docx
+                # 转换为 <w:br/>，导致 Word 中每行多出断行
+                return raw.decode(encoding).replace("\r\n", "\n").replace("\r", "\n")
             except UnicodeDecodeError:
                 continue
         self._log_warning(f"文件编码无法识别已跳过: {relative}")

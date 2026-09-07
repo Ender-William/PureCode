@@ -22,6 +22,7 @@
   <group name="settings">
     <text key="title">设置</text>
     <text key="keep_unmatched">无匹配语言规则的文件原样保留（关闭则导出时跳过）</text>
+    <text key="remove_blank_lines">移除空行（导出的文档不保留任何空行）</text>
     <text key="log_title">处理日志</text>
   </group>
   <group name="export">
@@ -56,12 +57,13 @@
   <group name="language">
     <text key="title">语言设置</text>
     <text key="add">添加语言</text>
-    <text key="hint">多个记号以空格分隔；块注释按「起始符 结束符」成对填写，如 /* */</text>
+    <text key="hint">多个记号以空格分隔；块注释按「起始符 结束符」成对填写，如 /* */；文档字符串界定符仅在行首（前面只有缩进）出现时按注释剥离</text>
     <text key="name">语言名称</text>
     <text key="extensions">文件扩展名</text>
     <text key="line_comments">单行注释符</text>
     <text key="block_comments">块注释符</text>
     <text key="string_delimiters">字符串界定符</text>
+    <text key="docstrings">文档字符串界定符</text>
     <text key="nested_block">支持嵌套块注释</text>
     <text key="save">保存</text>
     <text key="delete">删除</text>
