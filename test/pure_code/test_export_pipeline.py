@@ -116,3 +116,29 @@ class TestRemoveBlankLines:
         pipeline.run(root, ["raw.zzz"], output)
         texts = _read_doc_texts(output)
         assert texts[2:] == ["line1", "", "line2", ""]
+
+
+class TestTwoPhaseProgress:
+    """两阶段进度上报：处理阶段按文件，写文档阶段按文件块（current 空串标识）"""
+
+    def test_full_progress_sequence(self, pipeline, project_root, tmp_path):
+        calls: list[tuple] = []
+        pipeline.run(
+            project_root, ["main.py", "src/util.py"], tmp_path / "out.docx",
+            progress=lambda *args: calls.append(args))
+        assert calls == [
+            ("main.py", 0, 2),
+            ("src/util.py", 1, 2),
+            ("", 2, 2),   # 处理阶段收尾
+            ("", 0, 2),   # 写文档阶段逐块
+            ("", 1, 2),
+            ("", 2, 2),   # 写文档收尾
+        ]
+
+    def test_write_phase_skipped_when_no_blocks(
+            self, pipeline, project_root, tmp_path):
+        calls: list[tuple] = []
+        pipeline.run(
+            project_root, ["ghost.py"], tmp_path / "out.docx",
+            progress=lambda *args: calls.append(args))
+        assert calls == [("ghost.py", 0, 1), ("", 1, 1), ("", 0, 0)]

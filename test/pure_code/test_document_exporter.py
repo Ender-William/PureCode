@@ -43,3 +43,27 @@ class TestDocxExporter:
         output = tmp_path / "不存在的目录" / "out.docx"
         with pytest.raises(OSError):
             DocxExporter().write(output, "demo", [FileBlock("a.py", "x = 1")])
+
+
+class TestWriteProgress:
+    """写入进度回调：逐文件块上报"""
+
+    def test_progress_per_block_in_order(self, tmp_path: Path):
+        blocks = [FileBlock(f"f{index}.py", "x = 1") for index in range(3)]
+        calls: list[tuple] = []
+        DocxExporter().write(
+            tmp_path / "out.docx", "demo", blocks,
+            progress=lambda *args: calls.append(args))
+        assert calls == [(0, 3), (1, 3), (2, 3)]
+
+    def test_no_progress_callback(self, tmp_path: Path):
+        output = tmp_path / "out.docx"
+        DocxExporter().write(output, "demo", [FileBlock("a.py", "x = 1")])
+        assert output.exists()
+
+    def test_empty_blocks_no_progress(self, tmp_path: Path):
+        calls: list[tuple] = []
+        DocxExporter().write(
+            tmp_path / "out.docx", "demo", [],
+            progress=lambda *args: calls.append(args))
+        assert calls == []
