@@ -99,8 +99,8 @@ class PureCodePluginInfo(IPluginInfo):
 
     @property
     def skill_icon(self) -> PluginIcon:
-        """技能面板图标（相对插件目录的图标文件）"""
-        return PluginIcon.from_file("icons/icon.png")
+        """技能面板图标（SVG 矢量源；icons/icon.png 为 256px 渲染兜底）"""
+        return PluginIcon.from_file("icons/icon.svg")
 
     @property
     def skill_description(self) -> str:

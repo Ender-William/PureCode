@@ -72,7 +72,8 @@ custom_plugin/
     │   ├── zh.xml                  # 默认语言（全键覆盖）
     │   └── en.xml
     ├── icons/
-    │   └── icon.png                # 技能图标
+    │   ├── icon.svg                # 技能图标（SVG 矢量源，运行时引用）
+    │   └── icon.png                # 256px 渲染兜底（由 icon.svg 导出）
     ├── function/                   # 业务逻辑层（禁止 PySide6）
     │   ├── models.py               # LanguageRule 数据模型与校验（纯 dict，JSON 可序列化）
     │   ├── rule_store.py           # RuleStore：内置加载 + 用户覆盖合并 + DataProvider 持久化
