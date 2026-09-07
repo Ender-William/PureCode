@@ -15,6 +15,7 @@
 
 - **决策**：内置规则存放于插件 `config/default_rules.json`（随插件发布、只读）；用户新增/修改的规则经 DataProvider PRIVATE 命名空间持久化（键 `language_rule_overrides`）；生效规则按 `name` 合并、用户优先。
 - **Why**：`config/` 是规范要求的插件配置目录，适合发布态只读默认值；用户数据必须走 DataProvider（插件目录随卸载删除，不能写用户数据）。「覆盖式合并」让内置规则可被用户修正且可一键恢复默认。
+- **注册时机**：框架不在插件加载期代办 DataProvider 注册——RuleStore 在首次读写前自行 `get_plugin_info` 检查并 `register_plugin`（重复注册抛错需容忍：框架 API 注册实例与插件 UI 实例先后初始化同一插件 ID）。
 
 ### D3 排序与勾选分离
 
@@ -63,6 +64,7 @@ custom_plugin/
     ├── function/                   # 业务逻辑层（禁止 PySide6）
     │   ├── models.py               # LanguageRule 数据模型与校验（纯 dict，JSON 可序列化）
     │   ├── rule_store.py           # RuleStore：内置加载 + 用户覆盖合并 + DataProvider 持久化
+    │   ├── rule_text_codec.py      # 规则文本编解码：表单「空格分隔」文本 ↔ 规则列表字段
     │   ├── comment_stripper.py     # CommentStripper：规则驱动去注释状态机
     │   ├── project_scanner.py      # ProjectScanner：目录扫描、扩展名统计、默认排序、树模型
     │   ├── document_exporter.py    # DocxExporter：python-docx 适配器
@@ -189,17 +191,15 @@ stateDiagram-v2
 stateDiagram-v2
     [*] --> Idle : 未选目录
     Idle --> Scanning : 选择项目目录
-    Scanning --> CoarseSelect : 扫描完成弹粗选
-    CoarseSelect --> Ready : 确认粗选/构建 Tree
-    CoarseSelect --> Idle : 取消粗选
-    Ready --> Sorting : 调整顺序(对话框)
-    Sorting --> Ready : 确认/取消返回
+    Scanning --> Ready : 扫描完成且粗选确认
+    Scanning --> Idle : 空项目/粗选取消/扫描失败
     Ready --> Exporting : 开始导出(后台任务)
     Exporting --> Ready : 完成/失败
     Ready --> Idle : 重新选择目录
 ```
 
-- 实现方式：状态枚举 + 转换表驱动 Toolbar 动作可用性（导出/排序仅 Ready 态可用），禁止堆砌 boolean 标志。
+- 文件类型粗选、排序、语言设置对话框均为**模态对话框**，不作为独立状态；排序与导出仅 Ready 态可用，导出还要求勾选非空。
+- 实现方式：状态枚举 `_UiState` + 转换表 `_ACTION_STATES` 驱动工具栏动作可用性，禁止堆砌 boolean 标志（见 `ui/main_widget.py`）。
 
 ## 6. 语言规则数据模型
 
