@@ -44,8 +44,16 @@
     <text key="export_failed">导出失败：{error}</text>
     <text key="skipped_item">已跳过（读取或解码失败）：{file}</text>
     <text key="unmatched_item">无语言规则：{file}</text>
+    <text key="order_applied">已应用自定义文件顺序（{count} 个文件）</text>
   </group>
   <group name="common">
     <text key="developing">功能开发中，敬请期待</text>
+  </group>
+  <group name="sort">
+    <text key="title">调整文件顺序</text>
+    <text key="hint">拖拽列表项或使用按钮，调整文件在文档中出现的先后顺序：</text>
+    <text key="move_up">上移</text>
+    <text key="move_down">下移</text>
+    <text key="reset_default">恢复默认排序</text>
   </group>
 </texts>

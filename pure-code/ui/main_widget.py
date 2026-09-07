@@ -33,6 +33,7 @@ from ..service import PureCodeService
 from .file_tree_panel import FileTreePanel
 from .file_type_dialog import FileTypeDialog
 from .settings_panel import SettingsPanel
+from .sort_dialog import SortDialog
 
 # ===== 布局常量 =====
 TREE_PANEL_INITIAL_WIDTH = 320
@@ -160,8 +161,21 @@ class PureCodeMainWidget(QWidget):
             self._start_scan(directory)
 
     def _on_sort_files(self) -> None:
-        """调整文件顺序（排序对话框在后续迭代接入）"""
-        Message.info(self, self._tr("common", "developing"))
+        """调整文件顺序"""
+        self._open_sort_dialog(self._ordered_checked_files())
+
+    def _open_sort_dialog(self, current_files: list[str]) -> None:
+        """打开排序对话框：以当前导出顺序展示，确认后保存自定义顺序"""
+        if not current_files:
+            Message.warning(self, self._tr("export", "no_selection"))
+            return
+        default_files = self._tree_panel.checked_files()
+        dialog = SortDialog(self._tr, current_files, default_files, self)
+        if dialog.exec() != QDialog.DialogCode.Accepted:
+            return
+        self._custom_order = dialog.ordered_files()
+        self._settings_panel.append_log(
+            self._tr("task", "order_applied", count=len(self._custom_order)))
 
     def _on_language_settings(self) -> None:
         """语言设置（语言设置对话框在后续迭代接入）"""

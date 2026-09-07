@@ -44,8 +44,16 @@
     <text key="export_failed">Export failed: {error}</text>
     <text key="skipped_item">Skipped (read or decode failed): {file}</text>
     <text key="unmatched_item">No language rule: {file}</text>
+    <text key="order_applied">Custom file order applied ({count} files)</text>
   </group>
   <group name="common">
     <text key="developing">Feature under development</text>
+  </group>
+  <group name="sort">
+    <text key="title">Adjust File Order</text>
+    <text key="hint">Drag list items or use the buttons to adjust the order in which files appear in the document:</text>
+    <text key="move_up">Move Up</text>
+    <text key="move_down">Move Down</text>
+    <text key="reset_default">Reset to Default Order</text>
   </group>
 </texts>
