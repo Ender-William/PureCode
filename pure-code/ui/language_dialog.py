@@ -34,6 +34,7 @@ from ..function.models import (
     DEFAULT_ESCAPE_CHAR,
     FIELD_BLOCK_COMMENTS,
     FIELD_BUILTIN,
+    FIELD_DOCSTRINGS,
     FIELD_ESCAPE_CHAR,
     FIELD_EXTENSIONS,
     FIELD_LINE_COMMENTS,
@@ -59,6 +60,7 @@ PLACEHOLDER_EXTENSIONS = ".py .pyw"
 PLACEHOLDER_LINE = "#"
 PLACEHOLDER_BLOCK = "/* */"
 PLACEHOLDER_DELIMITERS = "\"\"\" ''' \" '"
+PLACEHOLDER_DOCSTRINGS = "\"\"\" '''"
 
 
 class _EditorMode(Enum):
@@ -131,13 +133,14 @@ class LanguageDialog(Dialog):
         return panel
 
     def _build_form(self, parent: QWidget) -> FormLayout:
-        """规则表单：名称/扩展名/单行注释/块注释/字符串界定符/嵌套块注释"""
+        """规则表单：名称/扩展名/注释符/字符串界定符/文档字符串/嵌套块注释"""
         form = FormLayout(parent)
         self._name_edit = LineEdit(parent=parent)
         self._extensions_edit = LineEdit(placeholder=PLACEHOLDER_EXTENSIONS, parent=parent)
         self._line_edit = LineEdit(placeholder=PLACEHOLDER_LINE, parent=parent)
         self._block_edit = LineEdit(placeholder=PLACEHOLDER_BLOCK, parent=parent)
         self._delimiters_edit = LineEdit(placeholder=PLACEHOLDER_DELIMITERS, parent=parent)
+        self._docstrings_edit = LineEdit(placeholder=PLACEHOLDER_DOCSTRINGS, parent=parent)
         self._nested_switch = Switch(parent=parent)
         for key, widget in self._form_rows():
             form.add_row(self._tr("language", key), widget)
@@ -151,6 +154,7 @@ class LanguageDialog(Dialog):
             ("line_comments", self._line_edit),
             ("block_comments", self._block_edit),
             ("string_delimiters", self._delimiters_edit),
+            ("docstrings", self._docstrings_edit),
             ("nested_block", self._nested_switch),
         ]
 
@@ -217,6 +221,7 @@ class LanguageDialog(Dialog):
         self._line_edit.setText(format_tokens(rule[FIELD_LINE_COMMENTS]))
         self._block_edit.setText(format_block_pairs(rule[FIELD_BLOCK_COMMENTS]))
         self._delimiters_edit.setText(format_tokens(rule[FIELD_STRING_DELIMITERS]))
+        self._docstrings_edit.setText(format_tokens(rule.get(FIELD_DOCSTRINGS) or []))
         self._nested_switch.setChecked(bool(rule[FIELD_NESTED_BLOCK]))
 
     def _apply_mode(self) -> None:
@@ -282,6 +287,7 @@ class LanguageDialog(Dialog):
             FIELD_LINE_COMMENTS: parse_tokens(self._line_edit.text()),
             FIELD_BLOCK_COMMENTS: pairs,
             FIELD_STRING_DELIMITERS: parse_tokens(self._delimiters_edit.text()),
+            FIELD_DOCSTRINGS: parse_tokens(self._docstrings_edit.text()),
             FIELD_ESCAPE_CHAR: DEFAULT_ESCAPE_CHAR,
             FIELD_NESTED_BLOCK: self._nested_switch.isChecked(),
         }, None
@@ -324,4 +330,5 @@ class LanguageDialog(Dialog):
         self._line_edit.setText("")
         self._block_edit.setText("")
         self._delimiters_edit.setText("")
+        self._docstrings_edit.setText("")
         self._nested_switch.setChecked(False)
