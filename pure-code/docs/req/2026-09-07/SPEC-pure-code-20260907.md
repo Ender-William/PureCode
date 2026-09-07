@@ -49,6 +49,12 @@
 - **Why**：docstring 与多行字符串字面量词法不可区分，行首启发式覆盖模块/类/函数 docstring 的普遍写法；规则字段化保持「新增语言零改引擎」的可扩展性（PRD F9），内置 Python 规则默认启用。
 - **代价**：行首裸表达式形式的三引号字符串会被误剥离（罕见写法，PRD §7 已注明）。
 
+### D9 两阶段导出进度
+
+- **决策**：进度分两阶段经统一回调上报——处理阶段逐文件 `(相对路径, 序号, 文件总数)`；写文档阶段逐文件块 `("", 块索引, 块总数)`（`current` 为空串标识阶段切换）；`document.save()` 为 python-docx 整体调用，无法拆分上报。UI 侧进度条（UIKit ProgressBar）按回调的 total 变化重设量程，成功置绿、失败标红。
+- **Why**：写文档阶段（逐段组装 + 保存）是大项目的耗时主体，无进度反馈会被用户视为卡死；`current` 空串约定避免了新增回调签名，保持 `ProgressCallback` 单一契约。
+- **教训**：进度回调曾以 `if current` 守卫丢弃空串调用，导致写文档阶段更新全部丢失、进度条 0→100 跳变——阶段切换信号不得被过滤。
+
 ## 2. 目录结构与模块划分
 
 ```
@@ -78,7 +84,7 @@ custom_plugin/
     ├── ui/                         # 视图层（禁止业务逻辑）
     │   ├── main_widget.py          # PureCodeMainWidget：QToolBar + QSplitter 骨架与动作编排
     │   ├── file_tree_panel.py      # FileTreePanel：Tree 构建、勾选收集、选中统计
-    │   ├── settings_panel.py       # SettingsPanel：设置区（保留无规则文件/移除空行开关）+ 日志区
+    │   ├── settings_panel.py       # SettingsPanel：设置开关 + 导出进度条 + 日志区
     │   ├── file_type_dialog.py     # FileTypeDialog：扩展名粗选（复选框 + 计数）
     │   ├── sort_dialog.py          # SortDialog：顺序拖拽调整 + 上移/下移/恢复默认
     │   └── language_dialog.py      # LanguageDialog：左列添加按钮+语言列表，右列规则表单
@@ -100,8 +106,8 @@ flowchart TD
     G --> H
     H --> I[register_async_task<br/>ExportPipeline 工作线程]
     I --> J[逐文件: 编码回退读入并归一换行符<br/>CommentStripper 剥离注释<br/>可选: 移除空行]
-    J --> K[DocxExporter 写 docx<br/>标题=相对路径 代码=等宽字体]
-    K --> L[run_in_ui_thread 封送<br/>日志区刷新 + 完成提示]
+    J --> K[DocxExporter 写 docx 逐块上报进度<br/>标题=相对路径 代码=等宽字体]
+    K --> L[run_in_ui_thread 封送<br/>进度条刷新 + 日志区 + 完成提示]
     M[LanguageDialog] --> N[RuleStore<br/>内置 ∪ 用户覆盖]
     N -.生效规则.-> J
 ```
@@ -247,4 +253,5 @@ Service 类名 `PureCodeService`，构造函数候选签名 `(plugin_id, data_pr
 - `comment_stripper`：各内置语言正常路径；边界（字符串内含注释符、转义符、未闭合字符串/块注释、嵌套块注释、空文件、整行注释、行尾注释）；docstring 行首启发式（模块/函数 docstring 剥离、赋值与 return 位置保留、起止同符禁止嵌套计数）。
 - `rule_store`：合并优先级、覆盖/恢复默认、非法规则校验、DataProvider 读写。
 - `project_scanner`：默认字母序（深度优先、每层名称排序）、类型过滤、空目录、符号链接/不可读目录容错。
-- `export_pipeline`：临时目录端到端生成 docx 并回读校验；移除空行开关；CRLF/CR 换行符归一（含无规则文件原样保留路径）。
+- `export_pipeline`：临时目录端到端生成 docx 并回读校验；移除空行开关；CRLF/CR 换行符归一（含无规则文件原样保留路径）；两阶段进度序列（处理阶段逐文件 → 写文档阶段逐块，含无块时跳过写阶段的边界）。
+- `document_exporter`：段落结构/字体断言；写入进度回调逐块有序上报、空块列表不上报。
