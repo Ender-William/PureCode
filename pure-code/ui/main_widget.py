@@ -94,6 +94,7 @@ class PureCodeMainWidget(QWidget):
         self._state = _UiState.IDLE
         self._project_root: "str | None" = None
         self._custom_order: "list[str] | None" = None
+        self._write_phase_logged = False
         self._actions: dict[str, QAction] = {}
         self._tree_panel = FileTreePanel(self._tr, self)
         self._settings_panel = SettingsPanel(self._tr, self)
@@ -233,6 +234,7 @@ class PureCodeMainWidget(QWidget):
         files = self._service.filter_files(scan.files, selected_extensions)
         self._project_root = scan.root
         self._custom_order = None
+        self._settings_panel.reset_progress()
         self._tree_panel.load_files(files)
         self._set_state(_UiState.READY)
         self._settings_panel.append_log(self._tr(
@@ -268,6 +270,8 @@ class PureCodeMainWidget(QWidget):
     def _begin_export(self, files: list[str], output_path: str) -> None:
         """进入导出态并提交后台导出任务"""
         self._set_state(_UiState.EXPORTING)
+        self._write_phase_logged = False
+        self._settings_panel.begin_progress()
         self._settings_panel.append_log(self._tr("task", "exporting"))
         self._submit_task(
             TASK_NAME_EXPORT, self._service.run_export, self._on_export_finished,
@@ -277,15 +281,21 @@ class PureCodeMainWidget(QWidget):
                   self._settings_panel.is_remove_blank_lines()))
 
     def _on_export_progress(self, current: str, done: int, total: int) -> None:
-        """导出进度回调（工作线程）：逐文件日志封送至 UI 线程"""
-        if current:
-            run_in_ui_thread(self._append_progress_log, current, done, total)
+        """导出进度回调（工作线程）：封送至 UI 线程更新进度条与日志"""
+        run_in_ui_thread(self._handle_export_progress, current, done, total)
 
-    def _append_progress_log(self, current: str, done: int, total: int) -> None:
-        """追加逐文件处理日志（UI 线程）"""
-        if _is_cpp_alive(self):
+    def _handle_export_progress(self, current: str, done: int, total: int) -> None:
+        """导出进度处理（UI 线程）：刷新进度条；逐文件记日志；写文档阶段记一次日志"""
+        if not _is_cpp_alive(self):
+            return
+        self._settings_panel.set_progress(done, total)
+        if current:
             self._settings_panel.append_log(self._tr(
                 "task", "progress_item", done=done, total=total, file=current))
+            return
+        if done < total and not self._write_phase_logged:
+            self._write_phase_logged = True
+            self._settings_panel.append_log(self._tr("task", "writing_docx"))
 
     def _on_export_finished(self, _task_id, status, result, error) -> None:
         """导出任务回调（工作线程）：封送至 UI 线程处理"""
@@ -296,7 +306,9 @@ class PureCodeMainWidget(QWidget):
         if not _is_cpp_alive(self):
             return
         self._set_state(_UiState.READY)
-        if status == TaskStatus.COMPLETED and result is not None:
+        success = status == TaskStatus.COMPLETED and result is not None
+        self._settings_panel.finish_progress(success)
+        if success:
             self._report_export_success(result)
             return
         self._report_export_failure(error)

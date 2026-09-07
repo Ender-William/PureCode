@@ -7,6 +7,7 @@ PureCode docx 导出适配器
 
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Callable
 
 from docx import Document
 from docx.oxml.ns import qn
@@ -19,6 +20,9 @@ TITLE_FONT_SIZE_PT = 12
 PAGE_WIDTH_CM = 21.0   # A4 纵向
 PAGE_HEIGHT_CM = 29.7
 PAGE_MARGIN_CM = 2.54
+
+# 写入进度回调签名：(已写入文件块索引（0 基）, 总块数)
+WriteProgressCallback = Callable[[int, int], None]
 
 
 @dataclass
@@ -37,6 +41,7 @@ class DocxExporter:
         output_path: "str | Path",
         project_name: str,
         file_blocks: list[FileBlock],
+        progress: "WriteProgressCallback | None" = None,
     ) -> None:
         """
         生成代码 Word 文档（A4 页面，项目名标题 + 逐文件块）
@@ -45,6 +50,7 @@ class DocxExporter:
             output_path: 输出文件路径（.docx）
             project_name: 项目名称（作为文档标题）
             file_blocks: 有序文件块列表
+            progress: 写入进度回调（逐文件块上报 (索引, 总数)），可为 None
 
         Raises:
             OSError: 输出路径不可写
@@ -52,7 +58,10 @@ class DocxExporter:
         document = Document()
         self._setup_page(document)
         document.add_heading(project_name, level=0)
-        for block in file_blocks:
+        total = len(file_blocks)
+        for index, block in enumerate(file_blocks):
+            if progress is not None:
+                progress(index, total)
             self._append_file_block(document, block)
         document.save(str(output_path))
 

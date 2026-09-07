@@ -9,7 +9,7 @@
 
 - **决策**：不针对具体语言编写解析器，而是实现一个由 `LanguageRule` 数据完全驱动的单遍扫描状态机。
 - **Why**：软著去注释不需要完整的语法分析，只需要可靠地区分「代码 / 字符串字面量 / 注释」三种词法语境。字符串界定符（防误删字符串内的注释符）、单行/块注释符均可数据化，新增语言 = 新增一条规则数据，满足开闭原则与用户自定义扩展需求（PRD F9）。
-- **已知取舍**：不处理条件编译、嵌套字符串插值（如 f-string 内嵌引号）等深层语法；docstring 视为字符串保留。
+- **已知取舍**：不处理条件编译、嵌套字符串插值（如 f-string 内嵌引号）等深层语法；docstring 与多行字符串字面量词法不可区分，采用行首启发式（见 D8）。
 
 ### D2 语言规则双层存储：内置只读 + 用户覆盖
 
@@ -38,10 +38,16 @@
 - **决策**：文件树用 UIKit `Tree(checkable=True)`（Qt 自动三态联动）；Toolbar 用 Qt 原生 `QToolBar`+`QAction`（全局 QSS 已覆盖，UIKit 无 Toolbar 组件）；日志区用原生 `QPlainTextEdit` 只读；弹窗用 UIKit `Dialog` / `Message`，不用 QMessageBox；文件/目录对话框用原生 `QFileDialog`。
 - **Why**：框架全局 QSS 自动覆盖上述原生控件，插件零成本跟随主题；规范要求插件不自建主题、不用 QMessageBox。
 
-### D7 编码回退链
+### D7 编码回退链与换行符归一
 
-- **决策**：文件按字节读入，依次尝试 `utf-8 → gb18030` 解码，全部失败则记 WARNING 日志并跳过该文件。
-- **Why**：Windows 中文项目常见 GBK 系编码；回退链覆盖绝大多数场景且不引入 chardet 等新依赖；单文件失败不应中断整体导出。
+- **决策**：文件按字节读入，依次尝试 `utf-8 → gb18030` 解码，全部失败则记 WARNING 日志并跳过该文件；解码成功后统一将 `\r\n` / `\r` 归一为 `\n`。
+- **Why**：Windows 中文项目常见 GBK 系编码；回退链覆盖绝大多数场景且不引入 chardet 等新依赖；单文件失败不应中断整体导出。换行符归一是因为无规则文件走「原样保留」路径不经过引擎的行尾空白清理，残留的 `\r` 会被 python-docx 转换为 `<w:br/>`，导致 Word 中每行多余断行。
+
+### D8 docstring 行首启发式
+
+- **决策**：规则新增可选字段 `docstrings`（界定符列表）。界定符在**当前行已扫描部分为纯空白**（行首/仅缩进）时按块注释剥离（起止同符）；同一界定符仍保留在 `string_delimiters` 中，赋值/参数等位置出现时按字符串原样保留。起止同符的块注释禁止嵌套计数，否则起始符会被误计为嵌套导致无法闭合。
+- **Why**：docstring 与多行字符串字面量词法不可区分，行首启发式覆盖模块/类/函数 docstring 的普遍写法；规则字段化保持「新增语言零改引擎」的可扩展性（PRD F9），内置 Python 规则默认启用。
+- **代价**：行首裸表达式形式的三引号字符串会被误剥离（罕见写法，PRD §7 已注明）。
 
 ## 2. 目录结构与模块划分
 
@@ -72,7 +78,7 @@ custom_plugin/
     ├── ui/                         # 视图层（禁止业务逻辑）
     │   ├── main_widget.py          # PureCodeMainWidget：QToolBar + QSplitter 骨架与动作编排
     │   ├── file_tree_panel.py      # FileTreePanel：Tree 构建、勾选收集、选中统计
-    │   ├── settings_panel.py       # SettingsPanel：设置区 + 日志区
+    │   ├── settings_panel.py       # SettingsPanel：设置区（保留无规则文件/移除空行开关）+ 日志区
     │   ├── file_type_dialog.py     # FileTypeDialog：扩展名粗选（复选框 + 计数）
     │   ├── sort_dialog.py          # SortDialog：顺序拖拽调整 + 上移/下移/恢复默认
     │   └── language_dialog.py      # LanguageDialog：左列添加按钮+语言列表，右列规则表单
@@ -93,7 +99,7 @@ flowchart TD
     E --> H[开始导出]
     G --> H
     H --> I[register_async_task<br/>ExportPipeline 工作线程]
-    I --> J[逐文件: 编码回退读入<br/>CommentStripper 剥离注释]
+    I --> J[逐文件: 编码回退读入并归一换行符<br/>CommentStripper 剥离注释<br/>可选: 移除空行]
     J --> K[DocxExporter 写 docx<br/>标题=相对路径 代码=等宽字体]
     K --> L[run_in_ui_thread 封送<br/>日志区刷新 + 完成提示]
     M[LanguageDialog] --> N[RuleStore<br/>内置 ∪ 用户覆盖]
@@ -118,7 +124,7 @@ classDiagram
         +plugin_type_id: str
     }
     class PureCodeService {
-        +export_code_document(project_dir, output_path, extensions) dict
+        +export_code_document(project_dir, output_path, extensions, remove_blank_lines) dict
         +list_supported_languages() list
     }
     class RuleStore {
@@ -172,18 +178,19 @@ classDiagram
 ```mermaid
 stateDiagram-v2
     [*] --> Normal
+    Normal --> InBlockComment : 行首命中 docstrings<br/>(当前行仅空白，起止同符)
     Normal --> InString : 命中 string_delimiters
     Normal --> InLineComment : 命中 line_comments
     Normal --> InBlockComment : 命中 block_comments.start
     InString --> Normal : 命中匹配定界符<br/>(escape_char 转义除外)
     InLineComment --> Normal : 行尾
-    InBlockComment --> Normal : 命中 block_comments.end<br/>(nested_block 时计数归零)
+    InBlockComment --> Normal : 命中 block_comments.end<br/>(nested_block 且起止异符时计数归零)
     InString --> [*] : EOF(未闭合按原样保留)
     InBlockComment --> [*] : EOF
 ```
 
-- 匹配优先级：在同一位置同时可能命中多个记号时，**先字符串定界符、再注释符**；同类多记号（如 `"""` 与 `"`）按**最长匹配优先**，该优先级表由规则数据预编译生成，属引擎内部常量策略。
-- 行语义：剥离后整行为空且原行含注释 → 删除整行；行尾注释 → 剥离后去除尾部空白；字符串内容一律原样保留。
+- 匹配优先级：在同一位置同时可能命中多个记号时，按**行首文档字符串 → 字符串定界符 → 单行注释符 → 块注释符**顺序匹配；同类多记号（如 `"""` 与 `"`）按**最长匹配优先**，该优先级表由规则数据预编译生成，属引擎内部常量策略。
+- 行语义：剥离后整行为空且原行含注释 → 删除整行；行尾注释 → 剥离后去除尾部空白；字符串内容一律原样保留；原始空行在引擎层保留，「移除空行」由导出流水线按开关在拼装文档前统一执行（默认开启）。
 
 ### 5.2 主界面状态机
 
@@ -212,6 +219,7 @@ stateDiagram-v2
 | `line_comments` | list[str] | 单行注释符，如 `["#"]`、`["//"]` |
 | `block_comments` | list[list[str]] | 块注释起止对，如 `[["/*", "*/"]]` |
 | `string_delimiters` | list[str] | 字符串界定符，如 `["\"", "'", "\"\"\""]` |
+| `docstrings` | list[str] | 文档字符串界定符（可选，默认 `[]`）；行首出现时按块注释剥离，见 D8 |
 | `escape_char` | str | 字符串转义符，默认 `"\\"` |
 | `nested_block` | bool | 块注释是否可嵌套（Rust），默认 false |
 | `builtin` | bool | 是否内置（运行时标注，不入库） |
@@ -229,14 +237,14 @@ stateDiagram-v2
 
 ## 8. 对外 API（service_api）
 
-- `export_code_document(project_dir: str, output_path: str, extensions: list[str] | None = None) -> dict`：无 UI 导出（供跨插件 / MCP 调用），返回 `{output_path, file_count, skipped}`；
-- `list_supported_languages() -> list[dict]`：返回当前生效的语言规则清单。
+- `export_code_document(project_dir: str, output_path: str, extensions: list[str] | None = None, remove_blank_lines: bool = False) -> dict`：无 UI 导出（供跨插件 / MCP 调用），返回 `{output_path, file_count, skipped, unmatched}`；
+- `list_supported_languages() -> list[dict]`：返回当前生效的语言规则清单（含 `docstrings` 字段）。
 
 Service 类名 `PureCodeService`，构造函数候选签名 `(plugin_id, data_provider)`。
 
 ## 9. 测试策略（测试代码仅提交至插件仓库 test 分支）
 
-- `comment_stripper`：各内置语言正常路径；边界（字符串内含注释符、转义符、未闭合字符串/块注释、嵌套块注释、空文件、整行注释、行尾注释）；异常（全部编码失败 → 跳过）。
+- `comment_stripper`：各内置语言正常路径；边界（字符串内含注释符、转义符、未闭合字符串/块注释、嵌套块注释、空文件、整行注释、行尾注释）；docstring 行首启发式（模块/函数 docstring 剥离、赋值与 return 位置保留、起止同符禁止嵌套计数）。
 - `rule_store`：合并优先级、覆盖/恢复默认、非法规则校验、DataProvider 读写。
 - `project_scanner`：默认字母序（深度优先、每层名称排序）、类型过滤、空目录、符号链接/不可读目录容错。
-- `export_pipeline`：临时目录端到端生成 docx 并回读校验。
+- `export_pipeline`：临时目录端到端生成 docx 并回读校验；移除空行开关；CRLF/CR 换行符归一（含无规则文件原样保留路径）。
