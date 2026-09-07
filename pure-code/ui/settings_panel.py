@@ -9,7 +9,7 @@ from typing import Callable
 
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QPlainTextEdit, QVBoxLayout, QWidget
 
-from InstructionX_UIKit.components import Switch
+from InstructionX_UIKit.components import ProgressBar, Switch
 
 # ===== 布局常量 =====
 PANEL_MARGIN = 8
@@ -32,6 +32,8 @@ class SettingsPanel(QWidget):
         self._keep_switch = Switch(checked=True, parent=self)
         self._blank_label = QLabel(self)
         self._blank_switch = Switch(checked=True, parent=self)
+        self._progress_label = QLabel(self)
+        self._progress_bar = ProgressBar(0, parent=self)
         self._log_title = QLabel(self)
         self._log_view = QPlainTextEdit(self)
         self._build_ui()
@@ -44,6 +46,33 @@ class SettingsPanel(QWidget):
     def is_remove_blank_lines(self) -> bool:
         """导出时是否移除代码中的全部空行"""
         return self._blank_switch.isChecked()
+
+    def begin_progress(self) -> None:
+        """开始导出：进度条归零并恢复正常状态色"""
+        self._progress_bar.set_status("normal")
+        self._progress_bar.setRange(0, 100)
+        self._progress_bar.setValue(0)
+
+    def set_progress(self, done: int, total: int) -> None:
+        """刷新进度；total 变化时重设量程（处理阶段 → 写文档阶段切换）"""
+        if total < 1:
+            return
+        if total != self._progress_bar.maximum():
+            self._progress_bar.setRange(0, total)
+        self._progress_bar.setValue(min(done, total))
+
+    def finish_progress(self, success: bool) -> None:
+        """导出结束：成功则填满并置绿色，失败标红"""
+        if not success:
+            self._progress_bar.set_status("error")
+            return
+        self._progress_bar.setValue(self._progress_bar.maximum())
+        self._progress_bar.set_status("success")
+
+    def reset_progress(self) -> None:
+        """重置进度条（重新选择项目时调用）"""
+        self._progress_bar.set_status("normal")
+        self._progress_bar.setValue(0)
 
     def append_log(self, text: str) -> None:
         """追加一行处理日志"""
@@ -58,23 +87,29 @@ class SettingsPanel(QWidget):
         self._title_label.setText(self._tr("settings", "title"))
         self._keep_label.setText(self._tr("settings", "keep_unmatched"))
         self._blank_label.setText(self._tr("settings", "remove_blank_lines"))
+        self._progress_label.setText(self._tr("settings", "progress_title"))
         self._log_title.setText(self._tr("settings", "log_title"))
 
     def _build_ui(self) -> None:
-        """组装设置区与日志区"""
+        """组装设置区、进度条与日志区"""
         layout = QVBoxLayout(self)
         layout.setContentsMargins(
             PANEL_MARGIN, PANEL_MARGIN, PANEL_MARGIN, PANEL_MARGIN)
         layout.setSpacing(PANEL_SPACING)
-        keep_row = QHBoxLayout()
-        keep_row.addWidget(self._keep_label, 1)
-        keep_row.addWidget(self._keep_switch)
-        blank_row = QHBoxLayout()
-        blank_row.addWidget(self._blank_label, 1)
-        blank_row.addWidget(self._blank_switch)
+        progress_row = QHBoxLayout()
+        progress_row.addWidget(self._progress_label)
+        progress_row.addWidget(self._progress_bar, 1)
         self._log_view.setReadOnly(True)
         layout.addWidget(self._title_label)
-        layout.addLayout(keep_row)
-        layout.addLayout(blank_row)
+        layout.addLayout(self._build_switch_row(self._keep_label, self._keep_switch))
+        layout.addLayout(self._build_switch_row(self._blank_label, self._blank_switch))
+        layout.addLayout(progress_row)
         layout.addWidget(self._log_title)
         layout.addWidget(self._log_view, 1)
+
+    def _build_switch_row(self, label: QLabel, switch: Switch) -> QHBoxLayout:
+        """组装单行设置项（标签 + 开关）"""
+        row = QHBoxLayout()
+        row.addWidget(label, 1)
+        row.addWidget(switch)
+        return row

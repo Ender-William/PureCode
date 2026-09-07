@@ -23,6 +23,7 @@
     <text key="title">Settings</text>
     <text key="keep_unmatched">Keep files without a matching language rule as-is (skip if off)</text>
     <text key="remove_blank_lines">Remove blank lines (no blank lines are kept in the exported document)</text>
+    <text key="progress_title">Export Progress</text>
     <text key="log_title">Processing Log</text>
   </group>
   <group name="export">
@@ -40,6 +41,7 @@
     <text key="scan_failed_title">Scan Failed</text>
     <text key="scan_failed">Directory scan failed: {error}</text>
     <text key="exporting">Exporting code document...</text>
+    <text key="writing_docx">Generating Word document...</text>
     <text key="progress_item">({done}/{total}) Processed: {file}</text>
     <text key="export_done">Export completed: {count} files -&gt; {path}</text>
     <text key="export_failed">Export failed: {error}</text>

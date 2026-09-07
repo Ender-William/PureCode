@@ -23,6 +23,7 @@
     <text key="title">设置</text>
     <text key="keep_unmatched">无匹配语言规则的文件原样保留（关闭则导出时跳过）</text>
     <text key="remove_blank_lines">移除空行（导出的文档不保留任何空行）</text>
+    <text key="progress_title">导出进度</text>
     <text key="log_title">处理日志</text>
   </group>
   <group name="export">
@@ -40,6 +41,7 @@
     <text key="scan_failed_title">扫描失败</text>
     <text key="scan_failed">目录扫描失败：{error}</text>
     <text key="exporting">正在导出代码文档…</text>
+    <text key="writing_docx">正在生成 Word 文档…</text>
     <text key="progress_item">（{done}/{total}）已处理：{file}</text>
     <text key="export_done">导出完成：{count} 个文件 → {path}</text>
     <text key="export_failed">导出失败：{error}</text>
