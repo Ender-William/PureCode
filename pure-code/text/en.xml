@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<texts language="en">
+  <group name="toolbar">
+    <text key="select_dir">Select Project Directory</text>
+    <text key="sort_files">Adjust File Order</text>
+    <text key="language_settings">Language Settings</text>
+    <text key="start_export">Export</text>
+  </group>
+  <group name="file_type">
+    <text key="title">Select File Types</text>
+    <text key="hint">The following file types were detected. Check the types to include in the export:</text>
+    <text key="select_all">Select All</text>
+    <text key="clear_all">Clear</text>
+    <text key="no_extension">(no extension)</text>
+    <text key="item">{ext} ({count})</text>
+    <text key="empty">No files were found in the selected project.</text>
+  </group>
+  <group name="tree">
+    <text key="stats">{checked} / {total} files checked</text>
+    <text key="empty_hint">Select a project directory from the toolbar</text>
+  </group>
+  <group name="settings">
+    <text key="title">Settings</text>
+    <text key="keep_unmatched">Keep files without a matching language rule as-is (skip if off)</text>
+    <text key="remove_blank_lines">Remove blank lines (no blank lines are kept in the exported document)</text>
+    <text key="progress_title">Export Progress</text>
+    <text key="log_title">Processing Log</text>
+  </group>
+  <group name="export">
+    <text key="save_title">Export Code Document</text>
+    <text key="file_filter">Word Document (*.docx)</text>
+    <text key="no_selection">Check the files to export in the file tree first</text>
+    <text key="done_title">Export Completed</text>
+    <text key="done_msg">Successfully exported {count} files. Saved to: {path}</text>
+    <text key="fail_title">Export Failed</text>
+    <text key="fail_msg">An error occurred during export: {error}. Check whether the output path is writable, or see the log for details.</text>
+  </group>
+  <group name="task">
+    <text key="scanning">Scanning project directory...</text>
+    <text key="scan_done">Scan completed: {total} files found, {loaded} files loaded</text>
+    <text key="scan_failed_title">Scan Failed</text>
+    <text key="scan_failed">Directory scan failed: {error}</text>
+    <text key="exporting">Exporting code document...</text>
+    <text key="writing_docx">Generating Word document...</text>
+    <text key="progress_item">({done}/{total}) Processed: {file}</text>
+    <text key="export_done">Export completed: {count} files -&gt; {path}</text>
+    <text key="export_failed">Export failed: {error}</text>
+    <text key="skipped_item">Skipped (read or decode failed): {file}</text>
+    <text key="unmatched_item">No language rule: {file}</text>
+    <text key="order_applied">Custom file order applied ({count} files)</text>
+  </group>
+  <group name="sort">
+    <text key="title">Adjust File Order</text>
+    <text key="hint">Drag list items or use the buttons to adjust the order in which files appear in the document:</text>
+    <text key="move_up">Move Up</text>
+    <text key="move_down">Move Down</text>
+    <text key="reset_default">Reset to Default Order</text>
+  </group>
+  <group name="language">
+    <text key="title">Language Settings</text>
+    <text key="add">Add Language</text>
+    <text key="hint">Separate multiple tokens with spaces; write block comments as start/end pairs, e.g. /* */; docstring delimiters are stripped only at line start (indentation allowed)</text>
+    <text key="name">Language Name</text>
+    <text key="extensions">File Extensions</text>
+    <text key="line_comments">Line Comment Tokens</text>
+    <text key="block_comments">Block Comment Tokens</text>
+    <text key="string_delimiters">String Delimiters</text>
+    <text key="docstrings">Docstring Delimiters</text>
+    <text key="nested_block">Nested Block Comments</text>
+    <text key="save">Save</text>
+    <text key="delete">Delete</text>
+    <text key="restore_default">Restore Built-in Default</text>
+    <text key="tag_builtin"> (built-in)</text>
+    <text key="tag_overridden"> (built-in, modified)</text>
+    <text key="confirm_delete_title">Delete Language</text>
+    <text key="confirm_delete">Delete the custom language "{name}"? This cannot be undone.</text>
+    <text key="save_failed">Save Failed</text>
+    <text key="pair_error">Block comment tokens must be written as start/end pairs</text>
+    <text key="saved">Language rule saved</text>
+    <text key="restored">Restored to built-in default</text>
+  </group>
+</texts>

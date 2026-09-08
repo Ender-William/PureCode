@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<texts language="zh">
+  <group name="toolbar">
+    <text key="select_dir">选择项目目录</text>
+    <text key="sort_files">调整文件顺序</text>
+    <text key="language_settings">语言设置</text>
+    <text key="start_export">开始导出</text>
+  </group>
+  <group name="file_type">
+    <text key="title">选择文件类型</text>
+    <text key="hint">检测到以下文件类型，请勾选需要参与导出的类型：</text>
+    <text key="select_all">全选</text>
+    <text key="clear_all">清空</text>
+    <text key="no_extension">（无扩展名）</text>
+    <text key="item">{ext}（{count}）</text>
+    <text key="empty">所选项目中未找到任何文件。</text>
+  </group>
+  <group name="tree">
+    <text key="stats">已勾选 {checked} / {total} 个文件</text>
+    <text key="empty_hint">请通过工具栏选择项目目录</text>
+  </group>
+  <group name="settings">
+    <text key="title">设置</text>
+    <text key="keep_unmatched">无匹配语言规则的文件原样保留（关闭则导出时跳过）</text>
+    <text key="remove_blank_lines">移除空行（导出的文档不保留任何空行）</text>
+    <text key="progress_title">导出进度</text>
+    <text key="log_title">处理日志</text>
+  </group>
+  <group name="export">
+    <text key="save_title">导出代码文档</text>
+    <text key="file_filter">Word 文档 (*.docx)</text>
+    <text key="no_selection">请先在文件树中勾选要导出的文件</text>
+    <text key="done_title">导出完成</text>
+    <text key="done_msg">成功导出 {count} 个文件。保存至：{path}</text>
+    <text key="fail_title">导出失败</text>
+    <text key="fail_msg">导出过程中发生错误：{error}。请检查输出路径是否可写，或查看日志了解详情。</text>
+  </group>
+  <group name="task">
+    <text key="scanning">正在扫描项目目录…</text>
+    <text key="scan_done">扫描完成：共发现 {total} 个文件，加载 {loaded} 个文件</text>
+    <text key="scan_failed_title">扫描失败</text>
+    <text key="scan_failed">目录扫描失败：{error}</text>
+    <text key="exporting">正在导出代码文档…</text>
+    <text key="writing_docx">正在生成 Word 文档…</text>
+    <text key="progress_item">（{done}/{total}）已处理：{file}</text>
+    <text key="export_done">导出完成：{count} 个文件 → {path}</text>
+    <text key="export_failed">导出失败：{error}</text>
+    <text key="skipped_item">已跳过（读取或解码失败）：{file}</text>
+    <text key="unmatched_item">无语言规则：{file}</text>
+    <text key="order_applied">已应用自定义文件顺序（{count} 个文件）</text>
+  </group>
+  <group name="sort">
+    <text key="title">调整文件顺序</text>
+    <text key="hint">拖拽列表项或使用按钮，调整文件在文档中出现的先后顺序：</text>
+    <text key="move_up">上移</text>
+    <text key="move_down">下移</text>
+    <text key="reset_default">恢复默认排序</text>
+  </group>
+  <group name="language">
+    <text key="title">语言设置</text>
+    <text key="add">添加语言</text>
+    <text key="hint">多个记号以空格分隔；块注释按「起始符 结束符」成对填写，如 /* */；文档字符串界定符仅在行首（前面只有缩进）出现时按注释剥离</text>
+    <text key="name">语言名称</text>
+    <text key="extensions">文件扩展名</text>
+    <text key="line_comments">单行注释符</text>
+    <text key="block_comments">块注释符</text>
+    <text key="string_delimiters">字符串界定符</text>
+    <text key="docstrings">文档字符串界定符</text>
+    <text key="nested_block">支持嵌套块注释</text>
+    <text key="save">保存</text>
+    <text key="delete">删除</text>
+    <text key="restore_default">恢复内置默认</text>
+    <text key="tag_builtin">（内置）</text>
+    <text key="tag_overridden">（内置·已修改）</text>
+    <text key="confirm_delete_title">删除语言</text>
+    <text key="confirm_delete">确定删除自定义语言「{name}」吗？此操作不可撤销。</text>
+    <text key="save_failed">保存失败</text>
+    <text key="pair_error">块注释符须按「起始符 结束符」成对填写</text>
+    <text key="saved">语言规则已保存</text>
+    <text key="restored">已恢复内置默认</text>
+  </group>
+</texts>

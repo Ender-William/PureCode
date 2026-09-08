@@ -1,0 +1,87 @@
+{
+  "version": 1,
+  "rules": [
+    {
+      "name": "Python",
+      "extensions": [".py", ".pyw", ".pyi"],
+      "line_comments": ["#"],
+      "block_comments": [],
+      "string_delimiters": ["\"\"\"", "'''", "\"", "'"],
+      "docstrings": ["\"\"\"", "'''"],
+      "escape_char": "\\",
+      "nested_block": false
+    },
+    {
+      "name": "C",
+      "extensions": [".c", ".h"],
+      "line_comments": ["//"],
+      "block_comments": [["/*", "*/"]],
+      "string_delimiters": ["\"", "'"],
+      "escape_char": "\\",
+      "nested_block": false
+    },
+    {
+      "name": "C++",
+      "extensions": [".cpp", ".cc", ".cxx", ".c++", ".hpp", ".hh", ".hxx", ".h++"],
+      "line_comments": ["//"],
+      "block_comments": [["/*", "*/"]],
+      "string_delimiters": ["\"", "'"],
+      "escape_char": "\\",
+      "nested_block": false
+    },
+    {
+      "name": "C#",
+      "extensions": [".cs"],
+      "line_comments": ["//"],
+      "block_comments": [["/*", "*/"]],
+      "string_delimiters": ["\"", "'"],
+      "escape_char": "\\",
+      "nested_block": false
+    },
+    {
+      "name": "Java",
+      "extensions": [".java"],
+      "line_comments": ["//"],
+      "block_comments": [["/*", "*/"]],
+      "string_delimiters": ["\"\"\"", "\"", "'"],
+      "escape_char": "\\",
+      "nested_block": false
+    },
+    {
+      "name": "JavaScript",
+      "extensions": [".js", ".jsx", ".mjs", ".cjs"],
+      "line_comments": ["//"],
+      "block_comments": [["/*", "*/"]],
+      "string_delimiters": ["\"", "'", "`"],
+      "escape_char": "\\",
+      "nested_block": false
+    },
+    {
+      "name": "TypeScript",
+      "extensions": [".ts", ".tsx", ".mts", ".cts"],
+      "line_comments": ["//"],
+      "block_comments": [["/*", "*/"]],
+      "string_delimiters": ["\"", "'", "`"],
+      "escape_char": "\\",
+      "nested_block": false
+    },
+    {
+      "name": "Go",
+      "extensions": [".go"],
+      "line_comments": ["//"],
+      "block_comments": [["/*", "*/"]],
+      "string_delimiters": ["\"", "'", "`"],
+      "escape_char": "\\",
+      "nested_block": false
+    },
+    {
+      "name": "Rust",
+      "extensions": [".rs"],
+      "line_comments": ["//"],
+      "block_comments": [["/*", "*/"]],
+      "string_delimiters": ["\""],
+      "escape_char": "\\",
+      "nested_block": true
+    }
+  ]
+}
